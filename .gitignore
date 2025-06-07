@@ -1,0 +1,22 @@
+# Nix Flake generated lock file (though we DO commit flake.lock, this is for other potential Nix locks)
+# *.lock
+
+# General editor/OS cruft
+*~
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Build results if you ever build locally into the source tree (uncommon for system flakes)
+result
+result-*
+
+# Secrets (if you ever accidentally put any here - you shouldn't!)
+*.secret
+secrets/
+
+# Any local test files or temporary directories
+tmp/
+temp/
+*.tmp
