@@ -50,7 +50,7 @@
     shellAliases = {
       ls = "ls --color=auto -F"; ll = "ls -alhF"; la = "ls -AF"; l  = "ls -CF";
       glog = "git log --oneline --graph --decorate --all";
-      nix-update-system = "sudo nixos-rebuild switch --flake ~/Utveckling/NixOS/#nixos"; # Adjust path/hostname
+      nix-update-system = "sudo nixos-rebuild switch --flake ~/Utveckling/NixOS#nixos"; # Adjust path/hostname
       cc = "clang"; cxx = "clang++";
     };
     history = {
