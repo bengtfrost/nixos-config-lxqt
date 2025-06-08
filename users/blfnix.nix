@@ -17,20 +17,68 @@
 
     # Dev Toolchains
     rustup python313 uv nodejs_24 zig zls zsh-autocomplete
+
     # Build Tools
     cmake ninja llvmPackages_20.clang llvmPackages_20.llvm llvmPackages_20.lld llvmPackages_20.clang-tools
+
     # Editors & LSPs
-    helix marksman ruff python313Packages.python-lsp-server
-    nodePackages.typescript-language-server nodePackages.vscode-json-languageserver
-    nodePackages.yaml-language-server dprint taplo
+    # helix marksman ruff python313Packages.python-lsp-server
+    # nodePackages.typescript-language-server nodePackages.vscode-json-languageserver
+    # nodePackages.yaml-language-server dprint taplo
+
     # CLI Tools
     tmux pass keychain git gh fd ripgrep bat jq xclip yazi
     ueberzugpp unar ffmpegthumbnailer poppler_utils w3m zathura
     # AI Tools
     aider-chat litellm
+
+    # === Neovim and its Dependencies ===
+    neovim # Or neovim-unwrapped if your config needs it for specific wrapper plugins
+
+    # LSPs (ensure all LSPs your LazyVim config/Mason might use are here)
+    # From your languages.toml for Helix, many are the same:
+    marksman     # Markdown
+    ruff         # Python (LSP server is `ruff server`)
+    python313Packages.python-lsp-server # pylsp
+    nodePackages.typescript-language-server # For TS/JS
+    nodePackages.vscode-json-languageserver # For JSON
+    nodePackages.yaml-language-server       # For YAML
+    taplo        # For TOML (provides `taplo lsp stdio`)
+    zls          # For Zig
+    rust-analyzer # For Rust
+    # clangd is part of llvmPackages_20.clang-tools, already included
+
+    # Additional common LSPs you might want for Neovim:
+    lua-language-server # For Lua itself (Neovim config)
+    bash-language-server
+    nil # Nix Language Server (for editing these Nix files!)
+    # texlab # If you use LaTeX
+    # etc.
+
+    # Formatters (ensure all formatters your LazyVim config might use are here)
+    # Many LSPs can also format (e.g., ruff, clangd via clang-format)
+    dprint       # General purpose formatter
+    stylua       # Lua formatter
+    shfmt        # Shell script formatter
+    # prettier or prettierd (often via nodePackages) for web dev files
+    nodePackages.prettier # or pkgs.prettierd
+    # black, isort (for Python, though ruff can handle much of this)
+    # python313Packages.black
+    # python313Packages.isort
+
+    # Linters (many LSPs also provide linting)
+    shellcheck   # For shell scripts
+    # yamllint
+    # ... other linters ...
+
+    # Debuggers (if you set them up in Neovim)
+    # gdb, delve (for Go), etc.
+
+    # === End Neovim Dependencies ===
+
   ];
 
-    # --- MANAGING OPENBOX CONFIGURATION (rc.xml) DIRECTLY ---
+  # --- MANAGING OPENBOX CONFIGURATION (rc.xml) DIRECTLY ---
   # This approach gives you full control over the rc.xml content.
   # Home Manager will place this file at ~/.config/openbox/rc.xml
   xdg.configFile."openbox/rc.xml" = {
@@ -118,7 +166,20 @@
     };
   };
 
-  programs.helix.enable = true;
+  # programs.helix.enable = true;
+
+  # --- NEOVIM CONFIGURATION (Managed by Home Manager) ---
+  # This will symlink your entire Neovim config directory.
+  xdg.configFile."nvim" = {
+    source = ../dotfiles/nvim; # Assumes your nvim config is at:
+                               # ~/Utveckling/nixos-config/dotfiles/nvim/
+    recursive = true;          # Important for copying the whole directory
+  };
+
+  # Optional: If your Neovim setup needs specific environment variables
+  # home.sessionVariables = {
+  #   SOME_NEOVIM_VAR = "value";
+  # };
 
   programs.keychain = {
     enable = true;        # Enable keychain management
@@ -159,7 +220,7 @@
     };
   };
 
-    # --- Alacritty Configuration ---
+  # --- Alacritty Configuration ---
   programs.alacritty = {
     enable = true;
     settings = {
@@ -215,11 +276,11 @@
 
   # Manage Helix config files (ensure paths are correct relative to this file's location in the Flake)
   # Assuming blfnix.nix is in /etc/nixos/users/ and dotfiles are in /etc/nixos/dotfiles/
-  xdg.configFile."helix/languages.toml".source = ../dotfiles/helix/languages.toml;
+  # xdg.configFile."helix/languages.toml".source = ../dotfiles/helix/languages.toml;
   # xdg.configFile."helix/config.toml".source = ../dotfiles/helix/config.toml;
 
   home.sessionVariables = {
-    EDITOR = "hx"; VISUAL = "hx"; PAGER = "less";
+    EDITOR = "nvim"; VISUAL = "nvim"; PAGER = "less";
     CC = "clang"; CXX = "clang++"; GIT_TERMINAL_PROMPT = "1";
     FZF_ALT_C_COMMAND = "fd --type d --hidden --follow --exclude .git";
   };
