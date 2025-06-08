@@ -178,7 +178,7 @@
     <chainQuitKey>C-g</chainQuitKey>
     <keybind key="W-Return">
       <action name="Execute">
-        <command>qterminal</command>
+        <command>alacritty</command>
       </action>
     </keybind>
     <!-- Keybindings for desktop switching -->
@@ -397,11 +397,6 @@
     <!-- Center and Maximize Window (Bonus) -->
     <keybind key="W-5"> <!-- Was W-KP_Begin -->
       <action name="MaximizeFull"/>
-    </keybind>
-
-    <!-- Add your W-Return for qterminal if it's not elsewhere -->
-    <keybind key="W-Return">
-      <action name="Execute"><command>qterminal</command></action>
     </keybind>
   </keyboard>
   <mouse>
