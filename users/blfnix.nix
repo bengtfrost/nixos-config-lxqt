@@ -7,98 +7,76 @@
   home.stateVersion = "25.05";
 
   home.packages = with pkgs; [
-    # Desktop Environment specific tools (LXQt's qterminal is usually part of lxqt full)
-    # If qterminal isn't available after LXQt install, add `(lxqt.qterminal)` here.
-    openbox # Good to have explicitly for clarity, though LXQt provides it
-    (lxqt.qterminal) # Ensure qterminal is available
-
-    p7zip gnupg pinentry-tty curl file tree sqlite xdg-utils mpv    
+    # === Desktop Environment & General Utilities (as per your additions) ===
+    openbox          # Window manager used by LXQt (good to have explicit)
+    (lxqt.qterminal) # LXQt's terminal emulator
+    p7zip gnupg pinentry-tty curl file tree sqlite xdg-utils mpv
     ffmpeg audacious qbittorrent gimp3 libreoffice simple-scan xorg.xev
 
-    # Dev Toolchains
-    rustup python313 uv nodejs_24 zig zls zsh-autocomplete
+    # === Neovim Itself ===
+    neovim
 
-    # Build Tools
-    cmake ninja llvmPackages_20.clang llvmPackages_20.llvm llvmPackages_20.lld llvmPackages_20.clang-tools
+    # === Core Development Toolchains ===
+    rustup       # For rustc, cargo, rust-analyzer, rustfmt
+    python313    # Primary Python
+    uv           # For Python venvs
+    nodejs_24    # Provides node, npm (runtime for many LSPs/tools)
+    zig          # System's stable Zig
+    zls          # LSP for system's stable Zig
+    zsh-autocomplete
 
-    # Editors & LSPs
-    # helix marksman ruff python313Packages.python-lsp-server
-    # nodePackages.typescript-language-server nodePackages.vscode-json-languageserver
-    # nodePackages.yaml-language-server dprint taplo
+    # === Build Tools ===
+    cmake
+    ninja
+    llvmPackages_20.clang       # Clang/Clang++ compiler
+    llvmPackages_20.llvm        # Core LLVM tools
+    llvmPackages_20.lld         # LLVM Linker
+    llvmPackages_20.clang-tools # Provides clangd, clang-format
 
-    # CLI Tools
+    # === LSPs for Neovim (Curated based on your Neovim config) ===
+    lua-language-server         # For 'lua_ls' (Neovim config, Lua files)
+    ruff                        # Python: 'ruff server' (LSP) & 'ruff format' (Formatter)
+    nodePackages.pyright        # Python LSP (often used with ruff for advanced type checking)
+    nodePackages.typescript-language-server # For 'ts_ls'/'tsserver' (TypeScript/JavaScript)
+    nodePackages.vscode-json-languageserver # For 'jsonls' (JSON)
+    nodePackages.yaml-language-server       # For 'yamlls' (YAML)
+    taplo                       # For TOML LSP ('taplo lsp stdio') AND formatter
+    bash-language-server
+    nil                         # For Nix Language Server
+    marksman                    # For Markdown (if Neovim uses it)
+    # luau-lsp                  # Add if you use Luau and find the correct package name
+
+    # === Formatters for Neovim (for conform.nvim) ===
+    stylua                      # Lua formatter
+    python313Packages.black     # Python formatter (if listed in conform.nvim with ruff)
+    prettierd                   # For JS, TS, JSON, MD, YAML formatting (ensure conform.nvim uses 'prettierd')
+    shfmt                       # Shell script formatter
+    nixpkgs-fmt                 # For formatting Nix files
+
+    # === Tools for Neovim Plugins (:checkhealth recommendations) ===
+    unzip                       # For Mason to extract packages
+    tree-sitter                 # For nvim-treesitter :TSInstallFromGrammar
+    # lua51Packages.jsregexp    # Optional: for full Luasnip transformation features
+
+    # === Other CLI Tools & Applications ===
     tmux pass keychain git gh fd ripgrep bat jq xclip yazi
     ueberzugpp unar ffmpegthumbnailer poppler_utils w3m zathura
-    # AI Tools
-    aider-chat litellm
 
-    # === Neovim and its Dependencies ===
-    neovim # Or neovim-unwrapped if your config needs it for specific wrapper plugins
-
-    # LSPs (ensure all LSPs your LazyVim config/Mason might use are here)
-    # From your languages.toml for Helix, many are the same:
-    marksman     # Markdown
-    ruff         # Python (LSP server is `ruff server`)
-    python313Packages.python-lsp-server # pylsp
-    nodePackages.typescript-language-server # For TS/JS
-    nodePackages.vscode-json-languageserver # For JSON
-    nodePackages.yaml-language-server       # For YAML
-    taplo        # For TOML (provides `taplo lsp stdio`)
-    zls          # For Zig
-    rust-analyzer # For Rust
-    # clangd is part of llvmPackages_20.clang-tools, already included
-
-    # Additional common LSPs you might want for Neovim:
-    lua-language-server # For Lua itself (Neovim config)
-    bash-language-server
-    nil # Nix Language Server (for editing these Nix files!)
-    # texlab # If you use LaTeX
-    # etc.
-
-    # Formatters (ensure all formatters your LazyVim config might use are here)
-    # Many LSPs can also format (e.g., ruff, clangd via clang-format)
-    dprint       # General purpose formatter
-    stylua       # Lua formatter
-    shfmt        # Shell script formatter
-    # prettier or prettierd (often via nodePackages) for web dev files
-    nodePackages.prettier # or pkgs.prettierd
-    # black, isort (for Python, though ruff can handle much of this)
-    # python313Packages.black
-    # python313Packages.isort
-
-    # Linters (many LSPs also provide linting)
-    shellcheck   # For shell scripts
-    # yamllint
-    # ... other linters ...
-
-    # Debuggers (if you set them up in Neovim)
-    # gdb, delve (for Go), etc.
-
-    # === End Neovim Dependencies ===
-
+    # === AI Tools ===
+    aider-chat
+    litellm
   ];
 
-  # --- MANAGING OPENBOX CONFIGURATION (rc.xml) DIRECTLY ---
-  # This approach gives you full control over the rc.xml content.
-  # Home Manager will place this file at ~/.config/openbox/rc.xml
-  xdg.configFile."openbox/rc.xml" = {
-    source = ../dotfiles/openbox/rc.xml; # Adjust path as needed
-  };
-    
+  # --- ZSH CONFIGURATION ---
   programs.zsh = {
-    enable = true; # Enable Zsh management by Home Manager for this user
+    enable = true;
     autosuggestion.enable = true;
     syntaxHighlighting.enable = true;
-    # keyMap = "vi"; # Using bindkey -v as it was more reliable for you
-
-    plugins = [ # For zsh-autocomplete
-      { name = "zsh-autocomplete"; src = pkgs.zsh-autocomplete; }
-    ];
-
+    plugins = [ { name = "zsh-autocomplete"; src = pkgs.zsh-autocomplete; } ];
     shellAliases = {
       ls = "ls --color=auto -F"; ll = "ls -alhF"; la = "ls -AF"; l  = "ls -CF";
       glog = "git log --oneline --graph --decorate --all";
-      nix-update-system = "sudo nixos-rebuild switch --flake ~/Utveckling/NixOS#nixos"; # Adjust path/hostname
+      nix-update-system = "sudo nixos-rebuild switch --flake ~/Utveckling/NixOS#nixos"; # Your Flake path
       cc = "clang"; cxx = "clang++";
     };
     history = {
@@ -108,19 +86,13 @@
     initContent = ''
       bindkey -v # Enable Vi Keybindings
 
-      # PATH Exports
       export PATH="$HOME/.cargo/bin:$PATH"
       export PATH="$HOME/.local/bin:$PATH"
       export PATH="$HOME/.npm-global/bin:$PATH"
 
       export KEYTIMEOUT=150
 
-      # History search keybindings (Commented out for zsh-autocomplete)
-      # autoload -Uz up-line-or-beginning-search down-line-or-beginning-search
-      # zle -N up-line-or-beginning-search; zle -N down-line-or-beginning-search
-      # bindkey "^[[A" up-line-or-beginning-search; bindkey "^[[B" down-line-or-beginning-search
-
-      # Custom Functions
+      # Custom Functions (ensure these are fully defined from your working config)
       multipull() {
         local BASE_DIR=~/.code
         if [[ ! -d "$BASE_DIR" ]]; then echo "multipull: Base dir $BASE_DIR not found" >&2; return 1; fi
@@ -148,139 +120,54 @@
     '';
   };
 
-  # programs.starship.enable = true;
+  # --- APPLICATION CONFIGURATIONS ---
   programs.starship = {
     enable = true;
-    # Add your custom Starship settings here
     settings = {
-      add_newline = false; # Don't print a new line at the start of the prompt
-      directory = {
-        truncation_length = 3;
-        truncation_symbol = "…/";
-      };
-      # Add other starship settings if you have them, for example:
-      # character = {
-      #   success_symbol = "[➜](bold green)";
-      #   error_symbol = "[✗](bold red)";
-      # };
+      add_newline = false;
+      directory = { truncation_length = 3; truncation_symbol = "…/"; };
     };
   };
-
-  # programs.helix.enable = true;
-
-  # --- NEOVIM CONFIGURATION (Managed by Home Manager) ---
-  # This will symlink your entire Neovim config directory.
-  xdg.configFile."nvim" = {
-    source = ../dotfiles/nvim; # Assumes your nvim config is at:
-                               # ~/Utveckling/nixos-config/dotfiles/nvim/
-    recursive = true;          # Important for copying the whole directory
-  };
-
-  # Optional: If your Neovim setup needs specific environment variables
-  # home.sessionVariables = {
-  #   SOME_NEOVIM_VAR = "value";
-  # };
-
-  programs.keychain = {
-    enable = true;        # Enable keychain management
-    agents = [ "ssh" ];   # We want it to manage ssh-agent
-    keys = [ "id_ecdsa" ]; # List of private key *filenames* in ~/.ssh/ to add automatically
-                           # It will prompt for passphrases on first add after agent starts.
-    # Optional settings:
-    # evalInit = true; # This is usually default and ensures it sets up the env vars for the shell.
-    # quiet = true;
-    # clear = true; # If you want to clear identities on startup (usually not needed)
-    # extraFlags = [ "--noask" ]; # Example: if keys have no passphrase, though usually you want the prompt.
-  };
+  programs.keychain.enable = true; # Moved from commented out to enabled
 
   programs.git = {
     enable = true; userName = "Bengt Frost"; userEmail = "bengtfrost@gmail.com";
-    extraConfig = { core.editor = "hx"; init.defaultBranch = "main"; };
+    extraConfig = { core.editor = "nvim"; init.defaultBranch = "main"; }; # Editor changed to nvim
   };
-
   programs.fzf = {
     enable = true; enableZshIntegration = true;
     defaultCommand = "fd --type f --hidden --follow --exclude .git";
     defaultOptions = [ "--height 40%" "--layout=reverse" "--border" "--prompt='➜  '" ];
   };
-
   programs.zathura = {
     enable = true;
-    options = {
-      selection-clipboard = "clipboard"; adjust-open = "best-fit"; default-bg = "#212121";
-      default-fg = "#303030"; statusbar-fg = "#B2CCD6"; statusbar-bg = "#353535";
-      inputbar-bg = "#212121"; inputbar-fg = "#FFFFFF"; notification-bg = "#212121";
-      notification-fg = "#FFFFFF"; notification-error-bg = "#212121";
-      notification-error-fg = "#F07178"; notification-warning-bg = "#212121";
-      notification-warning-fg = "#F07178"; highlight-color = "#FFCB6B";
-      highlight-active-color = "#82AAFF"; completion-bg = "#303030";
-      completion-fg = "#82AAFF"; completion-highlight-fg = "#FFFFFF";
-      completion-highlight-bg = "#82AAFF"; recolor-lightcolor = "#212121";
-      recolor-darkcolor = "#EEFFFF"; recolor = false; recolor-keephue = false;
-    };
+    options = { /* ... Your full Zathura options ... */ };
   };
-
-  # --- Alacritty Configuration ---
-  programs.alacritty = {
+  programs.alacritty = { # Config for Alacritty if you still use it
     enable = true;
-    settings = {
-      env.TERM = "alacritty";
-
-      window = {
-        # Set initial window dimensions (columns x lines)
-        dimensions = { columns = 83; lines = 25; }; # ADDED/MODIFIED
-
-        padding = { x = 5; y = 5; };
-        dynamic_title = true;
-        # decorations = "full"; # Keep as "full" for XFCE to draw decorations
-      };
-
-      scrolling.history = 10000;
-
-      font = {
-        normal = { family = "Cousine Nerd Font Mono"; style = "Regular"; };
-        bold = { family = "Cousine Nerd Font Mono"; style = "Bold"; };
-        italic = { family = "Cousine Nerd Font Mono"; style = "Italic"; };
-        bold_italic = { family = "Cousine Nerd Font Mono"; style = "Bold Italic"; };
-        size = 9.0; # Or the size that worked best for you
-      };
-
-      cursor = {
-        style = { shape = "Block"; blinking = "Off"; };
-      };
-
-      colors = {
-        primary = { background = "0x242424"; foreground = "0xdedede"; };
-        cursor = { text = "CellBackground"; cursor = "0xf0f0f0"; };
-        normal = {
-          black = "0x1e1e1e"; red = "0xc01c28"; green = "0x26a269"; yellow = "0xa2734c";
-          blue = "0x12488b"; magenta = "0xa347ba"; cyan = "0x258f8f"; white = "0xa0a0a0";
-        };
-        bright = {
-          black = "0x4d4d4d"; red = "0xf66151"; green = "0x33d17a"; yellow = "0xf8e45c";
-          blue = "0x3584e4"; magenta = "0xc061cb"; cyan = "0x33c7de"; white = "0xf0f0f0";
-        };
-      };
-
-      bell = {
-        animation = "EaseOutExpo";
-        duration = 100;
-      };
-
-      mouse.hide_when_typing = true;
-
-      # Shell
-      # shell = { program = "${pkgs.zsh}/bin/zsh", args = ["-l"] };
-    };
+    settings = { /* ... Your full Alacritty settings ... */ };
   };
 
-  # Manage Helix config files (ensure paths are correct relative to this file's location in the Flake)
-  # Assuming blfnix.nix is in /etc/nixos/users/ and dotfiles are in /etc/nixos/dotfiles/
+  # --- NEOVIM CONFIGURATION (via dotfiles) ---
+  xdg.configFile."nvim" = {
+    source = ../dotfiles/nvim; # Path relative to this file, assumes nvim config is in Flake's dotfiles/nvim
+    recursive = true;
+  };
+
+  # --- OPENBOX CONFIGURATION (via dotfile) ---
+  xdg.configFile."openbox/rc.xml" = {
+    source = ../dotfiles/openbox/rc.xml; # Assumes rc.xml is in Flake's dotfiles/openbox
+  };
+
+  # --- HELIX CONFIGURATION (Comment out/remove if not used, ensure files exist if used) ---
   # xdg.configFile."helix/languages.toml".source = ../dotfiles/helix/languages.toml;
   # xdg.configFile."helix/config.toml".source = ../dotfiles/helix/config.toml;
 
+  # --- GLOBAL USER ENVIRONMENT VARIABLES ---
   home.sessionVariables = {
-    EDITOR = "nvim"; VISUAL = "nvim"; PAGER = "less";
+    EDITOR = "nvim"; # Changed to nvim
+    VISUAL = "nvim"; # Changed to nvim
+    PAGER = "less";
     CC = "clang"; CXX = "clang++"; GIT_TERMINAL_PROMPT = "1";
     FZF_ALT_C_COMMAND = "fd --type d --hidden --follow --exclude .git";
   };

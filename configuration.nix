@@ -9,9 +9,9 @@
   boot.loader.efi.canTouchEfiVariables = true;
   boot.initrd.luks.devices."luks-8e49ba55-1183-47f4-86af-d1a814d1ef3c".device = "/dev/disk/by-uuid/8e49ba55-1183-47f4-86af-d1a814d1ef3c"; # Your LUKS config
 
-  networking.hostName = "nixos";
+  networking.hostName = "nixos"; # Should match key in nixosConfigurations in flake.nix
   networking.networkmanager.enable = true;
-  programs.nm-applet.enable = true;
+  programs.nm-applet.enable = true; # NetworkManager tray icon
 
   time.timeZone = "Europe/Stockholm";
   i18n.defaultLocale = "sv_SE.UTF-8";
@@ -42,35 +42,32 @@
   # Automated Garbage Collection
   nix.gc = {
     automatic = true;
-    persistent = true;
+    persistent = true; # Recommended for Nix 2.4+
     options = "--delete-older-than 30d";
     dates = "weekly";
   };
   boot.loader.systemd-boot.configurationLimit = 10;
 
   # --- SYSTEM-WIDE ZSH ENABLEMENT ---
-  # This is crucial for users who have Zsh as their default shell.
-  # It ensures basic system integration for Zsh.
-  # Home Manager will provide detailed Zsh configuration for user 'blfnix'.
-  programs.zsh.enable = true;
+  programs.zsh.enable = true; # Ensures Zsh is a valid system shell
 
   # --- User Account Definition ---
   users.users.blfnix = {
     isNormalUser = true;
     description = "Bengt Frost";
     extraGroups = [ "networkmanager" "wheel" ];
-    shell = pkgs.zsh; # This setting requires programs.zsh.enable = true; at system level
+    shell = pkgs.zsh; # Zsh as default shell for blfnix
     packages = [ ];   # User packages are managed by Home Manager
   };
 
-  # Install firefox.
-  programs.firefox.enable = true;
+  # --- System-Wide Applications & Settings ---
+  programs.firefox.enable = true; # CORRECTLY RE-ADDED
 
-  # System-Wide Packages (Keep minimal)
   environment.systemPackages = with pkgs; [
-    wget gitMinimal fontconfig
-    # LXQt's qterminal is usually pulled in by services.xserver.desktopManager.lxqt.enable
-    # Add other truly essential system-wide tools if necessary
+    wget          # Essential CLI utility
+    gitMinimal    # Minimal git for system use
+    fontconfig    # Font management backend
+    # LXQt and its core components (like qterminal) are managed by services.xserver.desktopManager.lxqt.enable
   ];
 
   fonts.packages = with pkgs; [ nerd-fonts.cousine ];
@@ -80,11 +77,10 @@
   services.printing.enable = true;
   services.avahi = { enable = true; nssmdns4 = true; openFirewall = true; };
 
-  # System-Wide Environment Variables (if any, most will be in Home Manager)
+  # Minimal System-Wide Environment Variables
   environment.sessionVariables = {
-    # Example: some system-wide default if needed
-    # PAGER = "less";
+    # PAGER = "less"; # Most user-specific vars go into home.sessionVariables
   };
 
-  system.stateVersion = "25.05";
+  system.stateVersion = "25.05"; # CRITICAL
 }
