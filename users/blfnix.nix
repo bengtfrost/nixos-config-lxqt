@@ -46,6 +46,7 @@
     llvmPackages_20.llvm # Core LLVM tools
     llvmPackages_20.lld # LLVM Linker
     llvmPackages_20.clang-tools # Provides clangd, clang-format
+    llvmPackages_20.lldb # LLVM Debugger
 
     # === LSPs for Neovim (Curated based on your Neovim config) ===
     lua-language-server # For 'lua_ls' (Neovim config, Lua files)
