@@ -228,7 +228,7 @@
         # Set initial window dimensions (columns x lines)
         dimensions = { columns = 83; lines = 25; }; # ADDED/MODIFIED
 
-        padding = { x = 5; y = 5; };
+        padding = { x = 0; y = 0; };
         dynamic_title = true;
         # decorations = "full"; # Keep as "full" for XFCE to draw decorations
       };

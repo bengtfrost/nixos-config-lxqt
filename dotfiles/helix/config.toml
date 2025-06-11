@@ -1,4 +1,4 @@
-theme = "onedark" # A common theme similar to VS Code Dark+, good starting point
+theme = "dark_plus" # A common theme similar to VS Code Dark+, good starting point
 # Or try "catppuccin_mocha_helix" if you install it via Helix themes,
 # or other built-in themes. "adwaita-dark" might not be a direct Helix theme name.
 
@@ -8,6 +8,7 @@ mouse = false
 # shell = ["zsh", "-l"] # If LSPs need full login environment, usually not needed if PATH is set correctly
 # Completion settings, auto-pairs, etc. can go here
 auto-pairs = true
+true-color = true
 
 [editor.cursor-shape]
 insert = "bar"
