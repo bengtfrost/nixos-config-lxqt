@@ -68,7 +68,7 @@
     # stylua # Lua formatter
     shfmt # Shell script formatter
     nixpkgs-fmt # For formatting Nix files
-    python313Packages.black # If Helix config uses it as an alternative to ruff for Python
+    # python313Packages.black # If Helix config uses it as an alternative to ruff for Python
 
     # === Tools for Neovim Plugins (Commented out as Helix is primary) ===
     # unzip
