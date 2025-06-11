@@ -1,50 +1,27 @@
-# This file configures language-specific settings for Helix,
-# including Language Server Protocol (LSP) servers and formatters.
+# ~/Utveckling/NixOS/dotfiles/helix/languages.toml
+# (This file will be symlinked to ~/.config/helix/languages.toml by Home Manager)
 
 # --- C Language Configuration ---
 [[language]]
 name = "c"
 scope = "source.c"
-file-types = ["c", "h"] # 'h' can be ambiguous, but often used with C
-roots = [
-  "compile_commands.json",
-  "Makefile",
-  "makefile",
-  "CMakeLists.txt",
-  ".git",
-  "meson.build",
-]
-language-servers = ["clangd"]
+file-types = ["c", "h"]
+roots = ["compile_commands.json", "Makefile", "makefile", "CMakeLists.txt", ".git", "meson.build"]
+language-servers = ["clangd"] # Provided by llvmPackages_XX.clang-tools
 indent = { tab-width = 4, unit = "    " }
 auto-format = true
-formatter = { command = "clang-format", args = ["-"] } # Reads from stdin
+formatter = { command = "clang-format", args = ["-"] } # Provided by llvmPackages_XX.clang-tools
 
 # --- C++ Language Configuration ---
 [[language]]
-name = "cpp" # 'cpp' is the conventional name Helix uses
+name = "cpp"
 scope = "source.cpp"
-file-types = [
-  "cpp",
-  "cxx",
-  "cc",
-  "hpp",
-  "hxx",
-  "hh",
-  "C",
-  "H",
-] # Common C++ extensions
-roots = [
-  "compile_commands.json",
-  "Makefile",
-  "makefile",
-  "CMakeLists.txt",
-  ".git",
-  "meson.build",
-]
-language-servers = ["clangd"] # clangd handles both C and C++
+file-types = ["cpp", "cxx", "cc", "hpp", "hxx", "hh", "C", "H"]
+roots = ["compile_commands.json", "Makefile", "makefile", "CMakeLists.txt", ".git", "meson.build"]
+language-servers = ["clangd"] # Provided by llvmPackages_XX.clang-tools
 indent = { tab-width = 4, unit = "    " }
 auto-format = true
-formatter = { command = "clang-format", args = ["-"] } # Reads from stdin
+formatter = { command = "clang-format", args = ["-"] } # Provided by llvmPackages_XX.clang-tools
 
 # --- Python Language Configuration ---
 [[language]]
@@ -53,42 +30,35 @@ scope = "source.python"
 file-types = ["py", "pyi", "pyw"]
 shebangs = ["python", "python3"]
 roots = [
-  "pyproject.toml",
-  "ruff.toml", # Added ruff config files to roots
-  ".ruff.toml", # Added ruff config files to roots
-  "setup.py",
-  "poetry.lock",
-  "Pipfile",
-  ".git",
-  "requirements.txt",
-  "setup.cfg",
-  ".venv",
-  "venv",
+  "pyproject.toml", "ruff.toml", ".ruff.toml", "setup.py",
+  "poetry.lock", "Pipfile", ".git", "requirements.txt",
+  "setup.cfg", ".venv", "venv",
 ]
-language-servers = ["ruff", "pylsp"] # Prioritize ruff
+language-servers = ["ruff", "pyright"] # Changed from pylsp to pyright as per your pkgs list
+                                      # Ensure 'ruff' and 'pyright' are in your home.packages
 indent = { tab-width = 4, unit = "    " }
 auto-format = true
-# Formatter line removed; ruff server should handle formatting via LSP
+# Formatter: ruff's LSP (`ruff server`) can handle formatting.
+# If you want to explicitly call ruff format or black:
+formatter = { command = "ruff", args = ["format", "--stdin-filename", "%"] }
+# Or for black:
+# formatter = { command = "black", args = ["--quiet", "-"] }
+
 
 # --- TypeScript/JavaScript Language Configuration ---
 [[language]]
-name = "typescript"
-scope = "source.tsx"
+name = "typescript" # Covers ts, tsx, js, jsx, mjs, cjs
+scope = "source.tsx" # Broad scope for TSX/JSX highlighting
 file-types = ["ts", "tsx", "js", "jsx", "mjs", "cjs"]
 shebangs = ["node"]
 roots = [
-  "package.json",
-  "tsconfig.json",
-  "jsconfig.json",
-  ".git",
-  "deno.json",
-  "deno.jsonc",
-  "dprint.json",
+  "package.json", "tsconfig.json", "jsconfig.json", ".git",
+  "deno.json", "deno.jsonc", "dprint.json",
 ]
-language-servers = ["typescript-language-server"]
+language-servers = ["typescript-language-server"] # From nodePackages
 indent = { tab-width = 2, unit = "  " }
 auto-format = true
-formatter = { command = "dprint", args = ["fmt", "--stdin-filename", "%"] }
+formatter = { command = "dprint", args = ["fmt", "--stdin", "%"] } # CORRECTED dprint args
 
 # --- JSON Language Configuration ---
 [[language]]
@@ -96,16 +66,10 @@ name = "json"
 scope = "source.json"
 file-types = ["json", "jsonc", ".json5"]
 roots = [".git", "package.json", "dprint.json"]
-language-servers = ["json-language-server"]
+language-servers = ["json-language-server"] # From nodePackages.vscode-json-languageserver
 indent = { tab-width = 2, unit = "  " }
 auto-format = true
-formatter = { command = "dprint", args = [
-  "fmt",
-  "--stdin-filename",
-  "%",
-  "--language",
-  "json",
-] }
+formatter = { command = "dprint", args = ["fmt", "--stdin", "%", "--language", "jsonc"] } # CORRECTED dprint args, using jsonc for wider support
 
 # --- TOML Language Configuration ---
 [[language]]
@@ -113,10 +77,10 @@ name = "toml"
 scope = "source.toml"
 file-types = ["toml"]
 roots = [".git", "Cargo.toml", "pyproject.toml"]
-language-servers = ["taplo-lsp"]
+language-servers = ["taplo-lsp"] # Uses 'taplo' command with 'lsp stdio' args
 indent = { tab-width = 2, unit = "  " }
 auto-format = true
-formatter = { command = "taplo", args = ["format", "-"] }
+formatter = { command = "taplo", args = ["format", "-"] } # 'taplo' command from pkgs.taplo
 
 # --- YAML Language Configuration ---
 [[language]]
@@ -124,16 +88,10 @@ name = "yaml"
 scope = "source.yaml"
 file-types = ["yaml", "yml"]
 roots = [".git", "dprint.json"]
-language-servers = ["yaml-language-server"]
+language-servers = ["yaml-language-server"] # From nodePackages
 indent = { tab-width = 2, unit = "  " }
 auto-format = true
-formatter = { command = "dprint", args = [
-  "fmt",
-  "--stdin-filename",
-  "%",
-  "--language",
-  "yaml",
-] }
+formatter = { command = "dprint", args = ["fmt", "--stdin", "%", "--language", "yaml"] } # CORRECTED dprint args
 
 # --- Markdown Language Configuration ---
 [[language]]
@@ -142,16 +100,10 @@ scope = "source.md"
 file-types = ["md", "markdown"]
 roots = [".git", "dprint.json"]
 comment-token = "<!-- -->"
-language-servers = ["marksman"]
+language-servers = ["marksman"] # From pkgs.marksman
 indent = { tab-width = 4, unit = "    " }
 auto-format = true
-formatter = { command = "dprint", args = [
-  "fmt",
-  "--stdin-filename",
-  "%",
-  "--language",
-  "md",
-] }
+formatter = { command = "dprint", args = ["fmt", "--stdin", "%", "--language", "markdown"] } # CORRECTED dprint args
 
 # --- Zig Language Configuration ---
 [[language]]
@@ -159,11 +111,9 @@ name = "zig"
 scope = "source.zig"
 file-types = ["zig", "zir"]
 roots = ["build.zig", ".git"]
-language-servers = ["zls"]
+language-servers = ["zls"] # From pkgs.zls (for your system stable Zig)
 auto-format = true
-[language.formatter]
-command = "zig"
-args = ["fmt", "--stdin"]
+formatter = { command = "zig", args = ["fmt", "--stdin"] } # Uses system zig (from pkgs.zig)
 
 # --- Rust Language Configuration ---
 [[language]]
@@ -172,50 +122,74 @@ scope = "source.rust"
 injection-regex = "rust"
 file-types = ["rs"]
 roots = ["Cargo.toml", "Cargo.lock"]
-language-servers = ["rust-analyzer"]
+language-servers = ["rust-analyzer"] # From rustup component
 indent = { tab-width = 4, unit = "    " }
 auto-format = true
-formatter = { command = "rustfmt", args = ["--edition", "2021"] }
+formatter = { command = "rustfmt", args = ["--edition", "2021"] } # From rustup component
+
+# --- Lua Language Configuration ---
+[[language]]
+name = "lua"
+scope = "source.lua"
+file-types = ["lua"]
+roots = [".luacheckrc", ".stylua.toml", ".git"]
+language-servers = ["lua-language-server"] # From pkgs.lua-language-server ('lua_ls' in lspconfig)
+indent = { tab-width = 2, unit = "  " }
+auto-format = true
+formatter = { command = "stylua", args = ["-"] } # From pkgs.stylua
+
+# --- Nix Language Configuration ---
+[[language]]
+name = "nix"
+scope = "source.nix"
+file-types = ["nix"]
+roots = ["flake.nix", "shell.nix", "default.nix", ".git"]
+language-servers = ["nil"] # From pkgs.nil
+indent = { tab-width = 2, unit = "  " }
+auto-format = true
+formatter = { command = "nixpkgs-fmt", args = ["-"] } # From pkgs.nixpkgs-fmt
+
+# --- Bash/Shell Script Configuration ---
+[[language]]
+name = "bash" # Also applies to "sh" usually
+scope = "source.bash"
+file-types = ["sh", "bash", "zsh"] # Add zsh if you want bash-lsp for .zsh files too
+shebangs = ["sh", "bash", "dash"]
+roots = [".git", ".shellcheckrc"]
+language-servers = ["bash-language-server"] # From pkgs.bash-language-server
+indent = { tab-width = 2, unit = "  " } # Or 4, your preference
+auto-format = true
+formatter = { command = "shfmt", args = ["-i", "2", "-"] } # From pkgs.shfmt, -i 2 for 2 spaces indent
 
 
 # --- Language Server Definitions ---
+# These define how Helix starts the LSP executables.
+# The 'command' should be the executable name found in your PATH (from Nix packages).
 
 [language-server.clangd]
 command = "clangd"
-# If you want to force using clangd from your llvm20 path and it's NOT first in your system PATH:
-# command = "/usr/lib64/llvm20/bin/clangd"
-# You can add clangd arguments here if needed, e.g.:
-# args = ["--clang-tidy", "--compile-commands-dir=."]
 
-[language-server.pylsp]
+[language-server.pyright] # If you use pyright
+command = "pyright-langserver" # The command for pyright LSP is often pyright-langserver
+args = ["--stdio"]
+
+[language-server.pylsp] # If you use pylsp (python-lsp-server)
 command = "pylsp"
 
 [language-server.ruff]
 command = "ruff"
-args = ["server"]
-# Optional: Ruff server specific settings if not using pyproject.toml/ruff.toml exclusively for these
-# [language-server.ruff.config.settings]
-# lineLength = 88
-# logLevel = "info" # "debug" for more verbosity
-#
-# [language-server.ruff.config.settings.lint]
-# select = ["E", "F", "I"] # Example: select some common rule sets
-# preview = false
-#
-# [language-server.ruff.config.settings.format]
-# preview = true
-
+args = ["server", "--preview"] # Add --preview if you want Ruff's preview features
 
 [language-server.typescript-language-server]
 command = "typescript-language-server"
 args = ["--stdio"]
 
 [language-server.json-language-server]
-command = "json-language-server"
+command = "json-language-server" # From vscode-json-languageserver
 args = ["--stdio"]
 
-[language-server.taplo-lsp]
-command = "taplo"
+[language-server.taplo-lsp] # Name used in [[language.toml]]
+command = "taplo"         # Actual command from pkgs.taplo
 args = ["lsp", "stdio"]
 
 [language-server.yaml-language-server]
@@ -224,11 +198,22 @@ args = ["--stdio"]
 
 [language-server.marksman]
 command = "marksman"
+# args = ["server"] # Check if marksman needs 'server' or runs LSP by default
 
 [language-server.zls]
 command = "zls"
 
 [language-server.rust-analyzer]
 command = "rust-analyzer"
-[language-server.rust-analyzer.config]
-check = { command = "clippy" }
+# [language-server.rust-analyzer.config] # Example config from your previous file
+# check = { command = "clippy" }
+
+[language-server.lua-language-server] # Name used in [[language.lua]]
+command = "lua-language-server"     # Command from pkgs.lua-language-server
+
+[language-server.nil]
+command = "nil" # Command from pkgs.nil
+
+[language-server.bash-language-server]
+command = "bash-language-server"
+args = ["start"]
