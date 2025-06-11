@@ -1,4 +1,4 @@
-theme = "dark_plus" # A common theme similar to VS Code Dark+, good starting point
+theme = "onedark" # A common theme similar to VS Code Dark+, good starting point
 # Or try "catppuccin_mocha_helix" if you install it via Helix themes,
 # or other built-in themes. "adwaita-dark" might not be a direct Helix theme name.
 

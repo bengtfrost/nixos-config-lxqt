@@ -111,7 +111,7 @@
       la = "ls -AF";
       l = "ls -CF";
       glog = "git log --oneline --graph --decorate --all";
-      nix-update-system = "sudo nixos-rebuild switch --flake ~/Utveckling/NixOS#nixos";
+      nix-update-system = "sudo nixos-rebuild switch --flake ~/Utveckling/NixOS#nixos"; # Your Flake path
       cc = "clang";
       cxx = "clang++";
     };
@@ -132,9 +132,29 @@
 
       export KEYTIMEOUT=150
 
-      # Custom Functions
-      multipull() { /* ... your full multipull function ... */ }
-      _activate_venv() { /* ... your full _activate_venv function ... */ }
+      # Custom Functions (ensure these are fully defined from your working config)
+      multipull() {
+        local BASE_DIR=~/.code
+        if [[ ! -d "$BASE_DIR" ]]; then echo "multipull: Base dir $BASE_DIR not found" >&2; return 1; fi
+        echo "Searching Git repos under $BASE_DIR..."
+        fd --hidden --no-ignore --type d '^\.git$' "$BASE_DIR" | while read -r gitdir; do
+          local workdir=$(dirname "$gitdir")
+          echo -e "\n=== Updating $workdir ==="
+          if (cd "$workdir" && git rev-parse --abbrev-ref --symbolic-full-name '@{u}' &>/dev/null); then
+            git -C "$workdir" pull
+          else
+            local branch=$(git -C "$workdir" rev-parse --abbrev-ref HEAD)
+            echo "--- Skipping pull (no upstream for branch: $branch) ---"
+          fi
+        done
+        echo -e "\nMultipull finished."
+      }
+      _activate_venv() {
+        local venv_name="$1"; local venv_activate_path="$2"
+        if [[ ! -f "$venv_activate_path" ]]; then echo "Error: Venv script $venv_activate_path not found" >&2; return 1; fi
+        if (( $+commands[deactivate] )) && [[ "$(type -t deactivate)" != "builtin" ]]; then deactivate; fi
+        . "$venv_activate_path" && echo "Activated venv: $venv_name"
+      }
       v_mlmenv() { _activate_venv "mlmenv (Python 3.13)" "$HOME/.venv/python3.13/mlmenv/bin/activate"; }
       v_crawl4ai() { _activate_venv "crawl4ai (Python 3.13)" "$HOME/.venv/python3.13/crawl4ai/bin/activate"; }
     '';
