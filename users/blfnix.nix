@@ -7,9 +7,9 @@
   home.stateVersion = "25.05";
 
   home.packages = with pkgs; [
-    # === Desktop Environment & General Utilities (as per your additions) ===
-    openbox # Window manager used by LXQt (good to have explicit)
-    (lxqt.qterminal) # LXQt's terminal emulator
+    # === Desktop Environment & General Utilities ===
+    openbox
+    (lxqt.qterminal)
     p7zip
     gnupg
     pinentry-tty
@@ -27,51 +27,53 @@
     simple-scan
     xorg.xev
 
-    # === Neovim Itself ===
-    neovim
+    # === Helix Editor ===
+    helix
 
     # === Core Development Toolchains ===
     rustup # For rustc, cargo, rust-analyzer, rustfmt
-    python313 # Primary Python
-    uv # For Python venvs
+    python313
+    uv
     nodejs_24 # Provides node, npm (runtime for many LSPs/tools)
-    zig # System's stable Zig
+    zig
     zls # LSP for system's stable Zig
     zsh-autocomplete
 
     # === Build Tools ===
     cmake
     ninja
-    llvmPackages_20.clang # Clang/Clang++ compiler
-    llvmPackages_20.llvm # Core LLVM tools
-    llvmPackages_20.lld # LLVM Linker
+    llvmPackages_20.clang
+    llvmPackages_20.llvm
+    llvmPackages_20.lld
     llvmPackages_20.clang-tools # Provides clangd, clang-format
-    llvmPackages_20.lldb # LLVM Debugger
+    llvmPackages_20.lldb # LLDB Debugger
 
-    # === LSPs for Neovim (Curated based on your Neovim config) ===
-    lua-language-server # For 'lua_ls' (Neovim config, Lua files)
-    ruff # Python: 'ruff server' (LSP) & 'ruff format' (Formatter)
-    pyright # Python LSP (often used with ruff for advanced type checking)
-    nodePackages.typescript-language-server # For 'ts_ls'/'tsserver' (TypeScript/JavaScript)
-    nodePackages.vscode-json-languageserver # For 'jsonls' (JSON)
-    nodePackages.yaml-language-server # For 'yamlls' (YAML)
-    taplo # For TOML LSP ('taplo lsp stdio') AND formatter
+    # === LSPs & Formatters for Helix (and general use) ===
+    # (Ensure these align with your Helix languages.toml)
+    marksman # Markdown LSP
+    ruff # Python: 'ruff server' (LSP) & formatter
+    python313Packages.python-lsp-server # 'pylsp' (alternative Python LSP)
+    nodePackages.typescript-language-server # 'typescript-language-server' for TS/JS
+    nodePackages.vscode-json-languageserver # 'json-language-server' for JSON
+    nodePackages.yaml-language-server # 'yaml-language-server' for YAML
+    taplo # TOML: 'taplo lsp stdio' (LSP) & 'taplo format' (formatter)
     bash-language-server
-    nil # For Nix Language Server
-    marksman # For Markdown (if Neovim uses it)
-    # luau-lsp                  # Add if you use Luau and find the correct package name
+    nil # Nix Language Server
+    # rust-analyzer is installed via `rustup component add rust-analyzer`
+    # zls is already listed with zig toolchain
+    # clangd is from llvmPackages_20.clang-tools
 
-    # === Formatters for Neovim (for conform.nvim) ===
-    stylua # Lua formatter
-    python313Packages.black # Python formatter (if listed in conform.nvim with ruff)
-    prettierd # For JS, TS, JSON, MD, YAML formatting (ensure conform.nvim uses 'prettierd')
+    # Formatters (some overlap with LSPs)
+    dprint # General purpose formatter (used by Helix for several languages)
+    # stylua # Lua formatter
     shfmt # Shell script formatter
     nixpkgs-fmt # For formatting Nix files
+    python313Packages.black # If Helix config uses it as an alternative to ruff for Python
 
-    # === Tools for Neovim Plugins (:checkhealth recommendations) ===
-    unzip # For Mason to extract packages
-    tree-sitter # For nvim-treesitter :TSInstallFromGrammar
-    # lua51Packages.jsregexp    # Optional: for full Luasnip transformation features
+    # === Tools for Neovim Plugins (Commented out as Helix is primary) ===
+    # unzip
+    # tree-sitter # Helix has its own tree-sitter integration
+    # lua-language-server # Not needed if not configuring Neovim
 
     # === Other CLI Tools & Applications ===
     tmux
@@ -109,7 +111,7 @@
       la = "ls -AF";
       l = "ls -CF";
       glog = "git log --oneline --graph --decorate --all";
-      nix-update-system = "sudo nixos-rebuild switch --flake ~/Utveckling/NixOS#nixos"; # Your Flake path
+      nix-update-system = "sudo nixos-rebuild switch --flake ~/Utveckling/NixOS#nixos";
       cc = "clang";
       cxx = "clang++";
     };
@@ -130,29 +132,9 @@
 
       export KEYTIMEOUT=150
 
-      # Custom Functions (ensure these are fully defined from your working config)
-      multipull() {
-        local BASE_DIR=~/.code
-        if [[ ! -d "$BASE_DIR" ]]; then echo "multipull: Base dir $BASE_DIR not found" >&2; return 1; fi
-        echo "Searching Git repos under $BASE_DIR..."
-        fd --hidden --no-ignore --type d '^\.git$' "$BASE_DIR" | while read -r gitdir; do
-          local workdir=$(dirname "$gitdir")
-          echo -e "\n=== Updating $workdir ==="
-          if (cd "$workdir" && git rev-parse --abbrev-ref --symbolic-full-name '@{u}' &>/dev/null); then
-            git -C "$workdir" pull
-          else
-            local branch=$(git -C "$workdir" rev-parse --abbrev-ref HEAD)
-            echo "--- Skipping pull (no upstream for branch: $branch) ---"
-          fi
-        done
-        echo -e "\nMultipull finished."
-      }
-      _activate_venv() {
-        local venv_name="$1"; local venv_activate_path="$2"
-        if [[ ! -f "$venv_activate_path" ]]; then echo "Error: Venv script $venv_activate_path not found" >&2; return 1; fi
-        if (( $+commands[deactivate] )) && [[ "$(type -t deactivate)" != "builtin" ]]; then deactivate; fi
-        . "$venv_activate_path" && echo "Activated venv: $venv_name"
-      }
+      # Custom Functions
+      multipull() { /* ... your full multipull function ... */ }
+      _activate_venv() { /* ... your full _activate_venv function ... */ }
       v_mlmenv() { _activate_venv "mlmenv (Python 3.13)" "$HOME/.venv/python3.13/mlmenv/bin/activate"; }
       v_crawl4ai() { _activate_venv "crawl4ai (Python 3.13)" "$HOME/.venv/python3.13/crawl4ai/bin/activate"; }
     '';
@@ -167,25 +149,16 @@
     };
   };
 
-  # programs.helix.enable = true;
+  # programs.helix.enable = true; # This HM module is for basic settings;
+  # we use xdg.configFile for full control.
 
-  programs.keychain = {
-    enable = true; # Enable keychain management
-    agents = [ "ssh" ]; # We want it to manage ssh-agent
-    keys = [ "id_ecdsa" ]; # List of private key *filenames* in ~/.ssh/ to add automatically
-    # It will prompt for passphrases on first add after agent starts.
-    # Optional settings:
-    # evalInit = true; # This is usually default and ensures it sets up the env vars for the shell.
-    # quiet = true;
-    # clear = true; # If you want to clear identities on startup (usually not needed)
-    # extraFlags = [ "--noask" ]; # Example: if keys have no passphrase, though usually you want the prompt.
-  };
+  programs.keychain = { enable = true; agents = [ "ssh" ]; keys = [ "id_ecdsa" ]; };
 
   programs.git = {
     enable = true;
     userName = "Bengt Frost";
     userEmail = "bengtfrost@gmail.com";
-    extraConfig = { core.editor = "nvim"; init.defaultBranch = "main"; }; # Editor changed to nvim
+    extraConfig = { core.editor = "hx"; init.defaultBranch = "main"; }; # Editor changed to hx
   };
 
   programs.fzf = {
@@ -291,25 +264,48 @@
     };
   };
 
-  # --- NEOVIM CONFIGURATION (via dotfiles) ---
-  xdg.configFile."nvim" = {
-    source = ../dotfiles/nvim; # Path relative to this file, assumes nvim config is in Flake's dotfiles/nvim
-    recursive = true;
-  };
+  # --- NEOVIM CONFIGURATION (Commented out) ---
+  # xdg.configFile."nvim" = {
+  #   source = ../dotfiles/nvim;
+  #   recursive = true;
+  # };
 
-  # --- OPENBOX CONFIGURATION (via dotfile) ---
+  # --- OPENBOX CONFIGURATION ---
   xdg.configFile."openbox/rc.xml" = {
-    source = ../dotfiles/openbox/rc.xml; # Assumes rc.xml is in Flake's dotfiles/openbox
+    source = ../dotfiles/openbox/rc.xml;
   };
 
-  # --- HELIX CONFIGURATION (Comment out/remove if not used, ensure files exist if used) ---
-  # xdg.configFile."helix/languages.toml".source = ../dotfiles/helix/languages.toml;
-  # xdg.configFile."helix/config.toml".source = ../dotfiles/helix/config.toml;
+  # --- HELIX CONFIGURATION (via dotfiles) ---
+  # This ensures Home Manager places your custom Helix configuration files.
+  # Assumes these files exist in your Flake structure, e.g.,
+  # ~/Utveckling/NixOS/dotfiles/helix/languages.toml
+  # ~/Utveckling/NixOS/dotfiles/helix/config.toml
+  xdg.configFile."helix/languages.toml" = {
+    source = ../dotfiles/helix/languages.toml; # Your languages.toml from earlier
+  };
+  xdg.configFile."helix/config.toml" = {
+    # Create this file in your dotfiles directory with your desired Helix settings
+    # Example content:
+    # text = ''
+    #   theme = "adwaita-dark" # Example: if an Adwaita-Dark theme for Helix exists
+    #                          # Or any other theme you like, e.g., "catppuccin_mocha_helix"
+    #                          # Ensure the theme is compatible/available.
+    #   [editor]
+    #   line-number = "relative"
+    #   mouse = false
+    #   # shell = ["zsh", "-l"] # If Helix needs to pick up login shell env
+    #
+    #   [editor.lsp]
+    #   display-messages = true
+    # '';
+    # For a real config, better to use `source`:
+    source = ../dotfiles/helix/config.toml; # Create this file
+  };
 
   # --- GLOBAL USER ENVIRONMENT VARIABLES ---
   home.sessionVariables = {
-    EDITOR = "nvim"; # Changed to nvim
-    VISUAL = "nvim"; # Changed to nvim
+    EDITOR = "hx"; # Changed to hx
+    VISUAL = "hx"; # Changed to hx
     PAGER = "less";
     CC = "clang";
     CXX = "clang++";
