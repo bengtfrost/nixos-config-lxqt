@@ -31,6 +31,9 @@ right = [
   "file-type",
 ]
 
+[editor.soft-wrap]
+enable = true
+
 [keys.normal]
 space.space = "file_picker"
 space.f = "file_picker"
